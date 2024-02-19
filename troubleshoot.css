@@ -1,0 +1,13 @@
+.parent {
+    display: flex;
+}
+
+.child {
+    flex: 1;
+}
+
+h1 {
+    background-image: linear-gradient(to right, rgb(119, 33, 231), red);
+    background-clip: text;
+    color: transparent;
+}

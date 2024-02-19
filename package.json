@@ -1,0 +1,33 @@
+{
+  "name": "htmlrepotomobilebrowser",
+  "version": "1.0.0",
+  "description": "An electron app that provides an HTML server to a mobile browser via USB on a mobile device.",
+  "main": "main.js",
+  "scripts": {
+    "test": "console.log(\"test!\");",
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zandercoffman/HTMLRepoToMobileBrowser.git"
+  },
+  "keywords": [
+    "HTML",
+    "Browser"
+  ],
+  "author": "Zander Coffman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zandercoffman/HTMLRepoToMobileBrowser/issues"
+  },
+  "homepage": "https://github.com/zandercoffman/HTMLRepoToMobileBrowser#readme",
+  "dependencies": {
+    "adbkit": "^2.0.17",
+    "bluebird": "^3.7.2",
+    "child_process": "^1.0.2",
+    "net": "^1.0.2",
+    "path": "^0.12.7",
+    "usb": "^2.11.0",
+    "util": "^0.12.5"
+  }
+}

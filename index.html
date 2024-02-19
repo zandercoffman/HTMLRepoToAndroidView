@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+  </head>
+  <body>
+    <img src="upicon.png" alt="Top Image" class="top-image">
+    <h1><a href="https://github.com/zandercoffman/HTMLRepoToMobileBrowser" target="_blank">HTML Repo To Mobile Browser</a></h1>
+    <h3>Application developed by <a href="https://github.com/zandercoffman" target="_blank">Zander Coffman</a></h3>
+    <h6>Licensed under the <a href="LICENSE">Apache License</a>.</h6>
+    
+    <section data-curShow="0" data-curAnimation="none">
+      <p>This application is mainly to provide access to GitHub users who have a respository based under HTML, and who want to develop under a mobile database.
+        Usually, Chrome's judgement of devices may be weary and not true at times, and to solve that problem, using devices of one is a better solution and this project makes it happen.
+        <br><br>
+        It utilizes <a href="https://www.electronjs.org/" target="_blank">Electron JS</a> for it's main, application-wise front-end. For the backend, it utilizes NodeJS, with the main packages of 
+        Electron and <a href="https://developer.android.com/tools/adb" target="_blank">Android ADB</a>. 
+        <br><br>
+        As of now, this application is only compatable with Android Devices, however, I am planning to expand this project to iOS devices.
+      </p>
+    </section>
+    <section data-curShow="1" data-curAnimation="fadeInFromTop">
+      <table>
+        <thead>
+          <tr>
+            <th>Device ID</th>
+            <th>Device Name</th>
+            <th>Device Model</th>
+            <th>Device OS</th>
+            <th>Selected Device?</th>
+          </tr>
+        </thead>
+        <tbody id="deviceTableBody"></tbody>
+      </table>
+
+      <a href="troubleshoot.html" target="_blank"><button id="Troubleshoot">Troubleshoot</button></a>
+      <button id="listDevicesButton">Update Devices List</button>
+    </section>
+    <section data-curShow="0" data-curAnimation="none">
+      HOLA
+    </section>
+
+    <img src="downicon.png" alt="Bottom Image" class="bottom-image">
+
+    <script>
+      document.getElementById('listDevicesButton').addEventListener('click', async () => {
+        try {
+          const devices = await window.ipcRenderer.invoke('requestADBDevices');
+          const tableBody = document.getElementById('deviceTableBody');
+
+          // Clear existing table rows
+          tableBody.innerHTML = '';
+
+          // Populate the table with connected device information
+          devices.forEach(device => {
+            const row = tableBody.insertRow();
+            const cell1 = row.insertCell(0);
+            const cell2 = row.insertCell(1);
+            const cell3 = row.insertCell(2);
+            const cell4 = row.insertCell(3); // New cell for OS
+            const cell5 = row.insertCell(4); // New cell for checkbox
+
+            cell1.textContent = device.id;
+            cell2.textContent = device.name || 'UNDEFINED';
+            cell3.textContent = device.model || 'UNDEFINED';
+            cell4.textContent = device.os || 'UNKNOWN'; // Display OS information
+
+            // Create a checkbox and add it to the new cell
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            cell5.appendChild(checkbox);
+            cell5.classList.add('checkbox-cell'); // Apply additional styles for the checkbox cell
+
+            checkbox.addEventListener('click', () => {
+              // Uncheck all checkboxes before checking the clicked one
+
+              let checkboxes = document.querySelectorAll('.checkbox-cell input[type="checkbox"]');
+              if (checkboxes.length > 1) {
+                checkboxes.forEach(checkbox => {
+                  checkbox.checked = false;
+                });
+              }
+
+              // Check the clicked checkbox
+              checkbox.checked = true;
+            });
+          });
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      });
+    </script>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+    const sections = document.querySelectorAll('section');
+
+    function setAnimation(indexOfSection, direction) {
+        console.log("Ran setAnimation() - " + indexOfSection + " " + direction);
+        sections.forEach( (section, index) => {
+            if (indexOfSection === index) {
+                sections[Math.max(0, indexOfSection - 1)].setAttribute("data-curAnimation", `${direction}-fadeOut`.toString());
+                setTimeout(() => {}, 1250);
+                section.setAttribute("data-curAnimation", direction.toString());
+            }
+        })
+    }
+
+    function getCurrentShowedHTMLSection() {
+        let showedSectionIndex = -1;
+        sections.forEach((section, index) => {
+            if (section.getAttribute("data-curShow") === "1") {
+                showedSectionIndex = index;
+                return;
+            }
+        });
+        console.log(`getCurrentShowedHTMLSection returned ${showedSectionIndex}`)
+        return showedSectionIndex;
+    }
+    
+
+    function setPropertyToChosenHTMLSections(gottenIndex) {
+        console.log(`Ran setPropertyToChosenHTMLSections() - ${gottenIndex}`)
+        sections.forEach( (section, index) => {
+            if (index === gottenIndex) {
+                section.setAttribute("data-curShow", "1");
+            } else {
+                section.setAttribute("data-curShow", "0");
+            }
+        })
+    }
+
+    function moveUp() {
+        console.log("Ran moveUp() function")
+        let curShown = getCurrentShowedHTMLSection();
+        if (curShown === sections.length - 1 ) { return -1; }
+
+        setPropertyToChosenHTMLSections(curShown + 1);
+        setAnimation(curShown + 1, "up");
+    } 
+
+    function moveDown() {
+        console.log("Ran moveDown() function")
+        let curShown = getCurrentShowedHTMLSection();
+        if (curShown === 0) { return -1; }
+
+        setPropertyToChosenHTMLSections(curShown - 1);
+        setAnimation(curShown - 1, "down");
+    }
+
+    document.addEventListener('click', (event) => {
+        const halfOfScreen = window.innerHeight / 2;
+        
+        if (event.clientY < halfOfScreen - (.2 * halfOfScreen)) {
+            moveDown();
+        } else if (event.clientY > halfOfScreen + (.2 * halfOfScreen)) {
+            moveUp();
+        }
+    })
+
+  })
+
+  function isVisibleOnScreen(selectedElement) {
+      let data = selectedElement.getBoundingClientRect();
+      let flag = data.top > 0 && data.bottom > 0 && (window.innerHeight - data.bottom) > -1* window.innerHeight * .1;
+      return flag;
+  }
+    </script>
+  </body>
+</html>
